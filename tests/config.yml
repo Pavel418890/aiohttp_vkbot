@@ -1,9 +1,8 @@
 session:
-  key: CaY5iCkYtN7DqXdiYK1BvmGrQuaSA4Tl4bEk9my0jc0=
+  key: F-ktQiOWuhpeeLqlFZlY1ZG86mFplPH_sG0z45ShViQ=
 admin:
   email: admin@admin.com
   password: admin
 bot:
-  token: group_token
-  group_id: 1
-
+  token: d70735ed5f2739d7bfc0a3af81c3a195cbfcb96886a1645ac332796d8ccf20b0014b8c0d3b367fb63d5a3
+  group_id: 213467820

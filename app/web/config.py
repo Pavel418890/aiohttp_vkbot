@@ -1,6 +1,8 @@
+import base64
 import typing
 from dataclasses import dataclass
 
+import cryptography.fernet
 import yaml
 
 if typing.TYPE_CHECKING:
@@ -9,7 +11,7 @@ if typing.TYPE_CHECKING:
 
 @dataclass
 class SessionConfig:
-    pass
+    key: bytes
 
 
 @dataclass
@@ -20,7 +22,8 @@ class AdminConfig:
 
 @dataclass
 class BotConfig:
-    pass
+    token: str
+    group_id: str
 
 
 @dataclass
@@ -40,4 +43,12 @@ def setup_config(app: "Application", config_path: str):
             email=raw_config["admin"]["email"],
             password=raw_config["admin"]["password"],
         ),
+        session=SessionConfig(
+            key=raw_config["session"]["key"]
+        ),
+        bot=BotConfig(
+            token=raw_config["bot"]["token"],
+            group_id=raw_config["bot"]["group_id"]
+
+        )
     )
