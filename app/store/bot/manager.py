@@ -1,5 +1,4 @@
 import typing
-from pprint import pprint
 
 from app.store.vk_api.dataclasses import Update, Message
 

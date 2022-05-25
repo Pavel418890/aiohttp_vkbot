@@ -2,8 +2,19 @@ from aiohttp.web_response import Response
 from aiohttp_apispec import (
     docs, response_schema, request_schema, querystring_schema
 )
+from app.quiz.models import Answer
 
-from app.quiz.schemes import *
+from app.quiz.schemes import (
+    ThemeIdSchema,
+    ThemeListSchema,
+    ThemeListResponseSchema,
+    ThemeResponseSchema,
+    ThemeSchema,
+    QuestionListResponseSchema,
+    QuestionListSchema,
+    QuestionResponseSchema,
+    QuestionSchema
+)
 from app.web.mixins import AuthRequiredMixin
 from app.web.app import View
 from app.web.utils import json_response
@@ -15,7 +26,7 @@ class ThemeAddView(AuthRequiredMixin, View):
         summary="Add theme",
         description="Add new theme to database"
     )
-    @request_schema(ThemeAddRequestSchema)
+    @request_schema(ThemeSchema)
     @response_schema(ThemeResponseSchema, 201)
     async def post(self) -> Response:
         new_theme = self.data["title"]
@@ -31,11 +42,8 @@ class ThemeListView(AuthRequiredMixin, View):
     )
     @response_schema(ThemeListResponseSchema, 200)
     async def get(self) -> Response:
-        themes = [
-            ThemeSchema().dump(theme)
-            for theme in await self.store.quizzes.list_themes()
-        ]
-        return json_response(data=themes)
+        themes = await self.store.quizzes.list_themes()
+        return json_response(data=ThemeListSchema().dump({"themes": themes}))
 
 
 class QuestionAddView(AuthRequiredMixin, View):
@@ -44,13 +52,13 @@ class QuestionAddView(AuthRequiredMixin, View):
         summary="Add question",
         descrioption="Add new question to database"
     )
-    @request_schema(QuestionAddRequestSchema)
+    @request_schema(QuestionSchema)
     @response_schema(QuestionResponseSchema)
     async def post(self) -> Response:
         new_question = await self.store.quizzes.create_question(
             title=self.data["title"],
             theme_id=self.data["theme_id"],
-            answers=self.data["answers"]
+            answers=[Answer(**answer) for answer in self.data["answers"]],
         )
         return json_response(data=QuestionSchema().dump(new_question))
 
@@ -68,7 +76,6 @@ class QuestionListView(AuthRequiredMixin, View):
         if theme_id:
             theme_id = int(theme_id)
         questions = await self.store.quizzes.list_questions(theme_id)
-        finalize_questions = [
-            QuestionSchema().dump(question) for question in questions
-        ]
-        return json_response(data=finalize_questions)
+        return json_response(
+            data=QuestionListSchema().dump({"questions": questions})
+        )

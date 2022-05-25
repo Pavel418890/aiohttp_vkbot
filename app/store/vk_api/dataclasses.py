@@ -1,9 +1,6 @@
 import copy
 from dataclasses import dataclass
 
-
-# Базовые структуры, для выполнения задания их достаточно,
-# поэтому постарайтесь не менять их пожалуйста из-за возможных проблем с тестами
 from typing import Optional
 
 
@@ -39,6 +36,7 @@ class UpdateObject:
         if isinstance(self.message, dict):
             raw_message = copy.deepcopy(self.message)
             self.message = UpdateMessage(**raw_message)
+
 
 @dataclass
 class Update:

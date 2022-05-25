@@ -1,4 +1,3 @@
-import copy
 from typing import Optional
 
 from aiohttp.web import HTTPConflict
@@ -26,7 +25,7 @@ class QuizAccessor(BaseAccessor):
     async def get_theme_by_id(self, id_: int) -> Optional[Theme]:
         themes = self.app.database.themes
         if id_ > len(themes):
-            raise HTTPNotFound
+            return None
         elif id_ < 0:
             raise HTTPBadRequest
         else:
@@ -43,15 +42,14 @@ class QuizAccessor(BaseAccessor):
         return None
 
     async def create_question(
-            self, title: str, theme_id: int, answers: list[dict[str, str | bool]]
+            self, title: str, theme_id: int, answers: list[Answer]
     ) -> Question:
         theme = await self.get_theme_by_id(theme_id)
-        parsed_answers = [Answer(**answer) for answer in answers]
         only_one_correct = 0
-        for answer in parsed_answers:
+        for answer in answers:
             if answer.is_correct:
                 only_one_correct += 1
-        if only_one_correct != 1 and len(parsed_answers) < 2:
+        if only_one_correct != 1 or len(answers) < 2:
             raise HTTPBadRequest
         elif await self.get_question_by_title(title):
             raise HTTPConflict
@@ -59,9 +57,10 @@ class QuizAccessor(BaseAccessor):
             raise HTTPNotFound
         else:
             question = Question(
+                id=self.app.database.next_question_id,
                 title=title,
                 theme_id=theme_id,
-                answers=parsed_answers
+                answers=answers
             )
             self.app.database.questions.append(question)
             return question
@@ -72,7 +71,7 @@ class QuizAccessor(BaseAccessor):
         if theme_id:
             return [
                 question for question in self.app.database.questions
-                if question.theme_id == int(theme_id)
+                if question.theme_id == theme_id
             ]
         else:
             return self.app.database.questions

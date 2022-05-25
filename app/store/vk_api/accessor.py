@@ -5,6 +5,7 @@ from typing import Optional
 
 import aiohttp
 from aiohttp.client import ClientSession
+from marshmallow import pprint
 
 from app.base.base_accessor import BaseAccessor
 from app.store.vk_api.dataclasses import Message, Update
@@ -28,7 +29,7 @@ class VkApiAccessor(BaseAccessor):
         await self._get_long_poll_service()
         self.poller = Poller(self.app.store)
         await self.poller.start()
-        pass
+
     async def disconnect(self, app: "Application"):
         if self.session and not self.session.closed:
             await self.session.close()
@@ -72,6 +73,7 @@ class VkApiAccessor(BaseAccessor):
         async with self.session.get(url) as response:
             result = await response.json()
             self.ts = result["ts"]
+            pprint(result)
             updates = [Update(**update) for update in result["updates"]]
             return updates
 

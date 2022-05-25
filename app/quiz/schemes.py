@@ -4,15 +4,11 @@ from app.web.schemes import OkResponseSchema
 
 
 class ThemeIdSchema(Schema):
-    id = fields.Int()
+    id = fields.Int(required=False)
 
 
-class ThemeAddRequestSchema(Schema):
+class ThemeSchema(ThemeIdSchema):
     title = fields.Str(required=True)
-
-
-class ThemeSchema(ThemeIdSchema, ThemeAddRequestSchema):
-    pass
 
 
 class ThemeListSchema(Schema):
@@ -33,17 +29,13 @@ class AnswerSchema(Schema):
 
 
 class QuestionIdSchema(Schema):
-    id = fields.Int()
+    id = fields.Int(requied=False)
 
 
-class QuestionAddRequestSchema(Schema):
+class QuestionSchema(QuestionIdSchema):
     title = fields.Str(required=True)
     theme_id = fields.Int(required=True)
     answers = fields.Nested(AnswerSchema, many=True)
-
-
-class QuestionSchema(QuestionIdSchema, QuestionAddRequestSchema):
-    pass
 
 
 class QuestionListSchema(Schema):
