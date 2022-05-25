@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import typing
 from datetime import datetime
 from typing import Optional
@@ -8,7 +9,8 @@ from aiohttp.client import ClientSession
 from marshmallow import pprint
 
 from app.base.base_accessor import BaseAccessor
-from app.store.vk_api.dataclasses import Message, Update
+from app.store.vk_api.dataclasses import Message, Update, UpdateObject, \
+    UpdateMessage
 from app.store.vk_api.poller import Poller
 
 if typing.TYPE_CHECKING:
@@ -71,10 +73,10 @@ class VkApiAccessor(BaseAccessor):
             }
         )
         async with self.session.get(url) as response:
-            result = await response.json()
-            self.ts = result["ts"]
-            pprint(result)
-            updates = [Update(**update) for update in result["updates"]]
+            data = await response.json()
+            self.ts = data["ts"]
+            pprint(data)
+            updates = [Update(**update) for update in data["updates"]]
             return updates
 
     async def send_message(self, message: Message) -> None:
@@ -84,7 +86,7 @@ class VkApiAccessor(BaseAccessor):
             params={
                 "access_token": self.app.config.bot.token,
                 "message": message.text,
-                "peer_id": message.peer_id,
+                "user_id": message.user_id,
                 "random_id": int(datetime.now().timestamp())
 
             }

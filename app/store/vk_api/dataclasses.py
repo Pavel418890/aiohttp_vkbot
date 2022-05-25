@@ -1,5 +1,6 @@
 import copy
 from dataclasses import dataclass
+from pprint import pprint
 
 from typing import Optional
 
@@ -8,16 +9,16 @@ from typing import Optional
 class Message:
     user_id: int
     text: str
-    peer_id: int
+    peer_id: Optional[int] = None
 
 
 @dataclass
 class UpdateMessage:
     id: int
-    peer_id: int
-    random_id: int
+    from_id: int
     text: str
-    from_id: Optional[int] = None
+    peer_id: Optional[int] = None
+    random_id: Optional[int] = None
     attachments: Optional[list] = None
     conversation_message_id: Optional[int] = None
     date: Optional[int] = None
@@ -30,7 +31,7 @@ class UpdateMessage:
 @dataclass
 class UpdateObject:
     message: UpdateMessage
-    client_info: dict
+    client_info: Optional[dict] = None
 
     def __post_init__(self):
         if isinstance(self.message, dict):
@@ -41,10 +42,10 @@ class UpdateObject:
 @dataclass
 class Update:
     type: str
-    event_id: str
-    group_id: str
     object: UpdateObject
-    v: str
+    event_id: Optional[str] = None
+    group_id: Optional[str] = None
+    v: Optional[str] = None
 
     def __post_init__(self):
         if isinstance(self.object, dict):
